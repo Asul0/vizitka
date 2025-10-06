@@ -4,12 +4,18 @@ import logging
 import asyncio
 
 from config import (
-    GIGACHAT_CREDENTIALS, GIGACHAT_SCOPE, GIGACHAT_VERIFY_SSL_CERTS,
-    GIGACHAT_MODEL, GIGACHAT_TIMEOUT, GIGACHAT_PROFANITY_CHECK,
-    GIGACHAT_TEMPERATURE, GIGACHAT_MAX_TOKENS
+    GIGACHAT_CREDENTIALS,
+    GIGACHAT_SCOPE,
+    GIGACHAT_VERIFY_SSL_CERTS,
+    GIGACHAT_MODEL,
+    GIGACHAT_TIMEOUT,
+    GIGACHAT_PROFANITY_CHECK,
+    GIGACHAT_TEMPERATURE,
+    GIGACHAT_MAX_TOKENS,
 )
 
 logger = logging.getLogger(__name__)
+
 
 class GigaChatManagerAssistant:
     def __init__(self):
@@ -23,19 +29,25 @@ class GigaChatManagerAssistant:
             temperature=GIGACHAT_TEMPERATURE,
             max_tokens=GIGACHAT_MAX_TOKENS,
         )
-        
+
     def get_analysis(self, system_prompt: str, user_prompt: str) -> str:
         return self._invoke_llm_with_retry(system_prompt, user_prompt)
-    
-    def _invoke_llm_with_retry(self, system_prompt: str, user_prompt: str, max_retries: int = 3) -> str:
+
+    def _invoke_llm_with_retry(
+        self, system_prompt: str, user_prompt: str, max_retries: int = 3
+    ) -> str:
         """Вызов LLM с retry на таймаут"""
         for attempt in range(max_retries):
             try:
-                logger.info(f"Отправляем запрос к GigaChat (попытка {attempt + 1}/{max_retries})")
-                response = self.client.invoke([
-                    SystemMessage(content=system_prompt),
-                    HumanMessage(content=user_prompt)
-                ])
+                logger.info(
+                    f"Отправляем запрос к GigaChat (попытка {attempt + 1}/{max_retries})"
+                )
+                response = self.client.invoke(
+                    [
+                        SystemMessage(content=system_prompt),
+                        HumanMessage(content=user_prompt),
+                    ]
+                )
                 logger.info("Получен ответ от GigaChat")
                 return response.content.strip()
             except Exception as e:
